@@ -53,62 +53,90 @@ export const handler = async (event) => {
     const growthRate =
       (data.thisWeekSales - data.lastWeekSales) / data.lastWeekSales;
 
+    const weeksOfSupply = data.inventory / data.thisWeekSales;
+    const serviceLevel = 1 - data.stockoutRate;
+
     const contextBlock = `
-Retail Data Context:
+Retail Data Context (DO NOT MODIFY):
 Region: ${data.region}
 Category: ${data.category}
 Last Week Sales: ${data.lastWeekSales} units
 This Week Sales: ${data.thisWeekSales} units
-Weekly Growth Rate: ${(growthRate * 100).toFixed(1)}%
+Weekly Growth Rate: ${(growthRate * 100).toFixed(2)}%
 Inventory On Hand: ${data.inventory} units
-Stockout Rate: ${(data.stockoutRate * 100).toFixed(1)}%
-Gross Margin: ${(data.grossMargin * 100).toFixed(1)}%
-Online Share: ${(data.onlineShare * 100).toFixed(1)}%
+Stockout Rate: ${(data.stockoutRate * 100).toFixed(2)}%
+Service Level: ${(serviceLevel * 100).toFixed(2)}%
+Gross Margin: ${(data.grossMargin * 100).toFixed(2)}%
+Online Share: ${(data.onlineShare * 100).toFixed(2)}%
+Weeks of Supply: ${weeksOfSupply.toFixed(2)}
 `;
 
     const systemPrompt = `
 You are a Retail Risk Intelligence Engine for Bharat MSMEs.
 
 STRICT RULES:
-- Use ONLY the provided Retail Data Context.
+- Use ONLY the Retail Data Context.
 - Do NOT invent numbers.
 - Perform calculations explicitly.
-- Keep units separate from revenue.
 - No storytelling.
-- Executive structured output only.
+- Executive structured format only.
 
-TIME CONTEXT:
 Assume today is March 3, 2026.
-If 30-day analysis required:
-"Analysis Period: Feb 1 – Mar 2, 2026"
+Analysis Period: Feb 1 – Mar 2, 2026
 
-RISK THRESHOLDS:
+--------------------------------------
+RISK LOGIC (STRICT)
+--------------------------------------
 
 Stockout Risk:
-0–10% → LOW RISK
-10–20% → MODERATE RISK
->20% → HIGH RISK
+If stockoutRate < 0.10 → LOW RISK
+If stockoutRate >= 0.10 AND stockoutRate < 0.20 → MODERATE RISK
+If stockoutRate >= 0.20 → HIGH RISK
 
 Escalating Risk:
-If stockout >10% AND growth >10%
+If stockoutRate > 0.10 AND growthRate > 0.10 → TRIGGERED
 
 Overstock Risk:
-If Inventory > 4 weeks of sales
+If Weeks of Supply > 4 → OVERSTOCK RISK
+Else → NO OVERSTOCK RISK
 
 Dead Stock:
-If no SKU aging → INSUFFICIENT DATA
+If no SKU aging data → INSUFFICIENT DATA – SKU aging metrics required
 
-FORECASTING:
-If growth >10%:
-Projected Demand = (This Week Sales × 4) × (1 + Growth Rate)
+--------------------------------------
+FORECASTING
+--------------------------------------
 
-FINANCIAL IMPACT:
-Potential Demand = This Week Sales / (1 - Stockout Rate)
-Lost Units = Potential Demand - This Week Sales
-Revenue Opportunity = Lost Units × Average Selling Price
-(Do NOT assume selling price.)
+If growthRate > 0.10:
 
-OUTPUT STRUCTURE:
+Projected Demand =
+(This Week Sales × 4) × (1 + growthRate)
+
+Show formula clearly.
+
+Compare projected demand vs current inventory.
+State clearly that comparison assumes NO replenishment.
+
+--------------------------------------
+FINANCIAL IMPACT
+--------------------------------------
+
+If stockoutRate > 0:
+
+Potential Demand =
+This Week Sales / (1 - stockoutRate)
+
+Lost Units =
+Potential Demand - This Week Sales
+
+Revenue Opportunity =
+Lost Units × Average Selling Price
+
+Do NOT assume selling price.
+
+--------------------------------------
+OUTPUT FORMAT (MANDATORY)
+--------------------------------------
 
 Retail Intelligence Report
 Analysis Period: Feb 1 – Mar 2, 2026
@@ -124,9 +152,20 @@ If no action taken →
 If actions executed →
 
 Anomaly Detection Layer
-(Trigger if growth >15% OR stockout >15%)
 
-Add AI Confidence Score (Low / Medium / High)
+Trigger ONLY if:
+growthRate > 0.15 OR stockoutRate > 0.15
+
+If not triggered, clearly state:
+"No anomaly detected."
+
+Add:
+AI Confidence Score (Low / Medium / High)
+
+End with:
+AI Generated on: March 3, 2026
+Powered by: Amazon Bedrock
+Architecture: AWS Lambda + Bedrock + React
 `;
 
     const finalPrompt = `
@@ -151,7 +190,7 @@ ${question}
           }
         ],
         inferenceConfig: {
-          maxTokens: 700,
+          maxTokens: 900,
           temperature: 0.2
         }
       }),
