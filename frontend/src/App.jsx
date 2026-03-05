@@ -24,6 +24,13 @@ function toValidPercent(value) {
   return Number(num.toFixed(1));
 }
 
+function toPercent(value, { min = -999, max = 999 } = {}) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return null;
+  if (num < min || num > max) return null;
+  return Number(num.toFixed(1));
+}
+
 function getNestedValue(obj, path) {
   return path.split(".").reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj);
 }
@@ -52,15 +59,105 @@ function extractStockoutPercent(data, insightText) {
   return null;
 }
 
+function extractGrowthPercent(data, insightText) {
+  const paths = [
+    "growthPercent",
+    "growth_percentage",
+    "growth_rate",
+    "salesGrowthPercent",
+    "metrics.growthPercent",
+    "metrics.growth_percentage",
+    "metrics.growth_rate",
+    "kpis.growthPercent",
+    "kpis.salesGrowthPercent",
+  ];
+
+  for (const path of paths) {
+    const value = toPercent(getNestedValue(data, path), { min: -100, max: 500 });
+    if (value !== null) return value;
+  }
+
+  if (!insightText) return null;
+  const growthMatch = insightText.match(
+    /(?:growth|sales growth|revenue growth)[^-\d]{0,25}(-?\d{1,3}(?:\.\d+)?)\s*%/i,
+  );
+  if (growthMatch) return toPercent(growthMatch[1], { min: -100, max: 500 });
+
+  return null;
+}
+
 function classifyStockoutRisk(stockoutPercent) {
   if (stockoutPercent === null) return null;
   if (stockoutPercent > 20) {
-    return { label: "High Risk", tone: "high", percent: stockoutPercent };
+    return { label: "HIGH RISK", tone: "high", percent: stockoutPercent };
   }
   if (stockoutPercent >= 10) {
-    return { label: "Moderate Risk", tone: "moderate", percent: stockoutPercent };
+    return { label: "MODERATE RISK", tone: "moderate", percent: stockoutPercent };
   }
-  return { label: "Stable", tone: "stable", percent: stockoutPercent };
+  return { label: "LOW RISK", tone: "low", percent: stockoutPercent };
+}
+
+function extractRiskLevel(data, insightText) {
+  const paths = ["riskLevel", "risk_level", "risk.level", "metrics.riskLevel", "kpis.riskLevel"];
+
+  for (const path of paths) {
+    const value = getNestedValue(data, path);
+    if (typeof value === "string") {
+      const normalized = value.trim().toLowerCase();
+      if (["high", "moderate", "medium", "low"].includes(normalized)) {
+        return normalized === "medium" ? "moderate" : normalized;
+      }
+    }
+  }
+
+  if (!insightText) return null;
+  const riskMatch = insightText.match(/\b(high|moderate|medium|low)\s+risk\b/i);
+  if (riskMatch) {
+    const level = riskMatch[1].toLowerCase();
+    return level === "medium" ? "moderate" : level;
+  }
+
+  return null;
+}
+
+function buildMetricBadges(data, insightText) {
+  const badges = [];
+  const growth = extractGrowthPercent(data, insightText);
+  const stockoutPercent = extractStockoutPercent(data, insightText);
+  const stockoutRisk = classifyStockoutRisk(stockoutPercent);
+  const explicitRisk = extractRiskLevel(data, insightText);
+  const riskLevel = explicitRisk || stockoutRisk?.tone || null;
+
+  if (growth !== null) {
+    badges.push({
+      key: "growth",
+      label: `Growth ${growth > 0 ? "+" : ""}${growth}%`,
+      tone: growth > 0 ? "positive" : growth < 0 ? "negative" : "neutral",
+    });
+  }
+
+  if (stockoutPercent !== null) {
+    badges.push({
+      key: "stockout",
+      label: `Stockout ${stockoutPercent}%`,
+      tone: stockoutRisk?.tone || "neutral",
+    });
+  }
+
+  if (riskLevel) {
+    const labelMap = {
+      high: "HIGH RISK",
+      moderate: "MODERATE RISK",
+      low: "LOW RISK",
+    };
+    badges.push({
+      key: "risk",
+      label: labelMap[riskLevel] || "RISK",
+      tone: riskLevel,
+    });
+  }
+
+  return badges;
 }
 
 function renderInline(text) {
@@ -194,13 +291,12 @@ export default function App() {
         body: JSON.stringify({ question: query }),
       });
       const data = await res.json();
-      const stockoutPercent = extractStockoutPercent(data, data.insight);
-      const risk = classifyStockoutRisk(stockoutPercent);
-      setMessages((prev) => [...prev, { id: makeId(), role: "ai", text: data.insight, feedback: null, risk }]);
+      const metrics = buildMetricBadges(data, data.insight);
+      setMessages((prev) => [...prev, { id: makeId(), role: "ai", text: data.insight, feedback: null, metrics }]);
     } catch {
       setMessages((prev) => [
         ...prev,
-        { id: makeId(), role: "ai", text: "Failed to reach the server. Please try again.", feedback: null, risk: null },
+        { id: makeId(), role: "ai", text: "Failed to reach the server. Please try again.", feedback: null, metrics: [] },
       ]);
     } finally {
       setLoading(false);
@@ -550,11 +646,17 @@ export default function App() {
 
         .bubble-top {
           display: flex;
-          justify-content: flex-end;
+          justify-content: flex-start;
           margin-bottom: 8px;
         }
 
-        .risk-badge {
+        .metric-badges {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+
+        .metric-badge {
           border-radius: 999px;
           padding: 3px 10px;
           font-size: 10px;
@@ -564,22 +666,30 @@ export default function App() {
           border: 1px solid transparent;
         }
 
-        .risk-badge.high {
+        .metric-badge.high,
+        .metric-badge.negative {
           background: rgba(248, 113, 113, 0.18);
           color: #fecaca;
           border-color: rgba(248, 113, 113, 0.45);
         }
 
-        .risk-badge.moderate {
+        .metric-badge.moderate {
           background: rgba(250, 204, 21, 0.18);
           color: #fde68a;
           border-color: rgba(250, 204, 21, 0.45);
         }
 
-        .risk-badge.stable {
+        .metric-badge.low,
+        .metric-badge.positive {
           background: rgba(74, 222, 128, 0.18);
           color: #bbf7d0;
           border-color: rgba(74, 222, 128, 0.45);
+        }
+
+        .metric-badge.neutral {
+          background: rgba(148, 163, 184, 0.18);
+          color: #dbe5f4;
+          border-color: rgba(148, 163, 184, 0.45);
         }
 
         .msg-actions {
@@ -625,6 +735,8 @@ export default function App() {
           border-radius: 14px;
           border-bottom-left-radius: 4px;
           padding: 12px 14px;
+          display: grid;
+          gap: 8px;
         }
 
         .typing-dots {
@@ -640,6 +752,12 @@ export default function App() {
           border-radius: 999px;
           background: var(--primary);
           animation: bob 1s ease-in-out infinite;
+        }
+
+        .typing-text {
+          font-size: 12px;
+          color: #b8cadd;
+          line-height: 1.5;
         }
 
         .composer {
@@ -827,10 +945,14 @@ export default function App() {
                       {msg.role === "user" ? "YOU" : "RI"}
                     </div>
                     <div className={`bubble ${msg.role === "user" ? "user-bubble" : "ai-bubble"}`}>
-                      {msg.role === "ai" && msg.risk && (
+                      {msg.role === "ai" && msg.metrics?.length > 0 && (
                         <div className="bubble-top">
-                          <div className={`risk-badge ${msg.risk.tone}`}>
-                            {msg.risk.label} ({msg.risk.percent}%)
+                          <div className="metric-badges">
+                            {msg.metrics.map((metric) => (
+                              <div key={metric.key} className={`metric-badge ${metric.tone}`}>
+                                {metric.label}
+                              </div>
+                            ))}
                           </div>
                         </div>
                       )}
@@ -865,6 +987,7 @@ export default function App() {
                     <div className="avatar ai-av">RI</div>
                     <div className="typing-shell">
                       <TypingDots />
+                      <p className="typing-text">Analyzing retail data... generating executive insights.</p>
                     </div>
                   </div>
                 )}
