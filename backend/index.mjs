@@ -190,7 +190,7 @@ ${question}
           }
         ],
         inferenceConfig: {
-          maxTokens: 900,
+          maxTokens: 950,
           temperature: 0.2
         }
       }),
