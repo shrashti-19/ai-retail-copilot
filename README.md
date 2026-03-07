@@ -65,25 +65,6 @@ The system follows a serverless cloud architecture powered by AWS.
 
 ![Architecture diagram](docs/architecture.png)
 
-User (Web Interface)
-
-        ↓  
-
-AWS Amplify (Frontend Hosting)
-
-        ↓
-
-Amazon API Gateway
-
-        ↓
-
-AWS Lambda (Backend Logic)
-
-        ↓
-
-Amazon Bedrock (Generative AI Model)
-
-
 ### Architecture Components
 
 **Frontend**
