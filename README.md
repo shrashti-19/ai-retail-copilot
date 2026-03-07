@@ -61,7 +61,9 @@ The system acts as an AI co-pilot for retail decision making.
 
 ## System Architecture
 
-The system follows a serverless cloud architecture powered by AWS.
+The system follows a serverless cloud architecture powered by AWS. 
+
+![Architecture diagram](architecture.png)
 
 User (Web Interface)
 
