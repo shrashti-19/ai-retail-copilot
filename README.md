@@ -64,13 +64,21 @@ The system acts as an AI co-pilot for retail decision making.
 The system follows a serverless cloud architecture powered by AWS.
 
 User (Web Interface)
-       ↓
+
+↓  
+
 AWS Amplify (Frontend Hosting)
-       ↓
+
+↓
+
 Amazon API Gateway
-       ↓
+
+↓
+
 AWS Lambda (Backend Logic)
-       ↓
+
+↓
+
 Amazon Bedrock (Generative AI Model)
 
 
