@@ -168,6 +168,7 @@ Working prototype:  https://main.d2od6r549w9irs.amplifyapp.com/
 ### AI Generated Retail Report
 
 ![Retail Report](docs/report-screenshot.png)
+![Retail Report](docs/report-screenshot2.png)
 
 ## Future Improvements
 
