@@ -1,97 +1,173 @@
 # AI-Powered Retail Intelligence Copilot
 
 ## Overview
-The AI-Powered Retail Intelligence Copilot is a conversational analytics backend system designed to help small and mid-sized retail businesses make data-driven decisions through natural language interactions.
 
-Instead of navigating complex dashboards, users can ask questions like:
-- "How are my sales performing this week?"
-- "Which products are at risk of stockout?"
-- "What pricing strategy should I use?"
+The AI-Powered Retail Intelligence Copilot is a Generative AI-powered analytics assistant designed to help retail businesses make data-driven decisions through natural language queries.
 
-The system analyzes sales, inventory, customer behavior, and trends to provide actionable insights and recommendations.
+Instead of relying on complex dashboards, retailers can simply ask questions such as:
+
+- "Show inventory risks across categories"
+- "Analyze footwear sales performance"
+- "Forecast next 30 days demand"
+
+The system analyzes retail signals like sales growth, inventory levels, stockout rates, and margins to generate structured executive insights.
+
+This prototype demonstrates how Generative AI can act as a decision-support engine for modern retail operations.
 
 ---
 
 ## Problem Statement
-Retail sellers and marketplace businesses often struggle with:
-- Understanding performance trends
-- Inventory mismanagement
-- Poor demand forecasting
-- Complex analytics tools
-- Delayed business decisions
 
-This project simplifies business intelligence by converting raw retail data into conversational insights.
+Retail businesses, especially small and mid-sized retailers, face several operational challenges:
+
+- Inventory mismanagement (stockouts & overstock)
+- Poor demand forecasting
+- Delayed business insights
+- Complex analytics tools that require technical expertise
+
+These issues often result in lost revenue and inefficient inventory decisions.
+
+Retailers need a simple and intelligent way to interpret their data and act quickly.
 
 ---
 
 ## Solution
-The system provides a backend-driven conversational intelligence platform that includes:
 
-- Sales performance analysis  
-- Inventory optimization recommendations  
-- Customer behavior insights  
-- Demand forecasting  
-- Pricing optimization  
-- Risk alerts  
-- Decision support  
+The AI-Powered Retail Intelligence Copilot uses Generative AI to transform retail data signals into executive-level insights.
+
+Users can interact with the system through natural language queries, and the AI engine analyzes the available data to provide:
+
+- Risk classification
+- Demand forecasting
+- Financial impact estimation
+- Decision recommendations
+- Scenario simulations
+
+The system acts as an AI co-pilot for retail decision making.
 
 ---
 
 ## Key Features
 
-- Natural language conversational analytics
-- Daily sales & inventory insights
-- Smart recommendations engine
-- Forecasting and trend analysis
-- Risk monitoring and alerts
-- Multi-platform retail data integration
-- Scalable microservices architecture
+- Natural language retail analytics
+- Inventory risk detection (stockouts & overstock)
+- 30-day demand forecasting
+- Financial impact estimation
+- Scenario-based decision insights
+- Anomaly detection in retail performance
+- Executive-level structured reports
 
 ---
 
 ## System Architecture
-The system follows a modular microservices architecture with:
 
-1. Chat Interface Layer  
-2. NLP & Conversation Manager  
-3. Analytics Engine Services  
-4. Data Integration Layer  
-5. External Retail Systems  
+The system follows a serverless cloud architecture powered by AWS.
+
+User (Web Interface)
+↓
+AWS Amplify (Frontend Hosting)
+↓
+Amazon API Gateway
+↓
+AWS Lambda (Backend Logic)
+↓
+Amazon Bedrock (Generative AI Model)
+
+
+### Architecture Components
+
+**Frontend**
+- React + Vite
+- Hosted on AWS Amplify
+
+**API Layer**
+- Amazon API Gateway handles API requests
+
+**Backend**
+- AWS Lambda processes queries and prepares AI prompts
+
+**AI Engine**
+- Amazon Bedrock (Foundation Model) generates structured retail insights
 
 ---
 
-## Tech Stack (Proposed)
+## Technologies Used
 
-| Layer | Technology |
-|------|------------|
-| Backend Services | Node.js / Python |
-| APIs | RESTful Services |
-| Database | PostgreSQL / MongoDB |
-| Caching | Redis |
-| Messaging | RabbitMQ |
-| Cloud | AWS |
-| AI/NLP | Foundation Models, NLP pipelines |
+Frontend
+- React
+- Vite
+- JavaScript
+
+Backend
+- AWS Lambda
+- Node.js
+
+Cloud Infrastructure
+- AWS Amplify
+- Amazon API Gateway
+- Amazon Bedrock
+
+AI & Analytics
+- Generative AI prompting
+- Retail analytics logic
+- Forecast calculations
 
 ---
 
-## Documents Included
+## How Generative AI is Used
 
-- `requirements.md` → Functional & system requirements  
-- `design.md` → System architecture, data models, components  
+Generative AI powers the analytics engine by interpreting retail signals and generating structured insights.
+
+The AI model performs:
+
+- Risk classification based on inventory metrics
+- Demand forecasting using sales growth signals
+- Financial impact estimation from stockout data
+- Scenario-based decision analysis
+- Anomaly detection in retail performance
+
+This allows business users to obtain advanced analytics through simple natural language queries.
+
+---
+
+## Example Queries
+
+Users can ask questions such as:
+
+- Show inventory risks across categories
+- Analyze footwear sales performance
+- Forecast next 30 days demand
+- Detect anomalies in sales growth
+- Summarize sales of men's footwear
+
+
+The AI generates a structured retail intelligence report in response.
+
+---
+
+## Live Prototype
+
+Working prototype:  https://main.d2od6r549w9irs.amplifyapp.com/
+
 
 ---
 
 ## Future Improvements
 
-- Real-time analytics streaming  
-- Advanced AI personalization  
-- Multi-language support  
-- Automated anomaly detection  
-- Mobile integration  
+Future development of the system may include:
+
+- Integration with real retail POS data
+- Multi-language support for Bharat retailers
+- Real-time streaming analytics
+- Product-level demand forecasting
+- AI-driven pricing optimization
 
 ---
 
 ## Author
+
 Shrashti Dwivedi  
-B.Tech Computer Science (AIML)  
+B.Tech Computer Science (AI & ML)  
 Backend & AI Enthusiast
+
+Prototype developed for the **AI for Bharat Hackathon**.
