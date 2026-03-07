@@ -149,8 +149,17 @@ The AI generates a structured retail intelligence report in response.
 
 Working prototype:  https://main.d2od6r549w9irs.amplifyapp.com/
 
-
 ---
+
+## Prototype Screenshots
+
+### AI Retail Intelligence Interface
+
+![Retail Copilot UI](docs/ui-screenshot.png)
+
+### AI Generated Retail Report
+
+![Retail Report](docs/report-screenshot.png)
 
 ## Future Improvements
 
