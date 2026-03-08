@@ -138,7 +138,9 @@ The AI generates a structured retail intelligence report in response.
 
 ## Live Prototype
 
-Working prototype:  https://main.d2od6r549w9irs.amplifyapp.com/
+The AI Retail Intelligence Copilot prototype is deployed on AWS using a serverless architecture (AWS Amplify, API Gateway, AWS Lambda, and Amazon Bedrock).
+
+For hackathon evaluation, the live prototype link has been provided in the official submission portal and demo video.
 
 ---
 
@@ -153,12 +155,6 @@ Working prototype:  https://main.d2od6r549w9irs.amplifyapp.com/
 ![Retail Report](docs/report-screenshot.png)
 
 ![Retail Report](docs/report-screenshot2.png)
-
-## Live Prototype
-
-The AI Retail Intelligence Copilot prototype is deployed on AWS using a serverless architecture (AWS Amplify, API Gateway, AWS Lambda, and Amazon Bedrock).
-
-For hackathon evaluation, the live prototype link has been provided in the official submission portal and demo video.
 
 ## Future Improvements
 
